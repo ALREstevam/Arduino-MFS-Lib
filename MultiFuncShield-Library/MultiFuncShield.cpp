@@ -12,8 +12,8 @@ const byte LED[] = {LED_1_PIN, LED_2_PIN, LED_3_PIN, LED_4_PIN};
 
 /* Segment byte maps for numbers 0 to 9 */
 const byte SEGMENT_MAP_DIGIT[] = {0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xF8,0X80,0X90};
-/* Segment byte maps for alpha a-z */
-const byte SEGMENT_MAP_ALPHA[] = {136, 131, 167, 161, 134, 142, 144, 139 ,207, 241, 182, 199, 182, 171, 163, 140, 152, 175, 146, 135, 227, 182, 182, 182, 145, 182};
+/* Segment byte maps for alpha a-z */											    //K        M                                            V    W    X         Z				
+const byte SEGMENT_MAP_ALPHA[] = {136, 131, 167, 161, 134, 142, 144, 139 ,207, 241, 182, 199, 200, 171, 163, 140, 152, 175, 146, 135, 227, 227, 182, 182, 145, 37};
 
 /* Byte maps to select digit 1 to 4 */
 const byte SEGMENT_SELECT[] = {0xF1,0xF2,0xF4,0xF8};
@@ -506,6 +506,14 @@ void MultiFuncShield::write(float number, byte decimalPlaces)
 
 
 // ----------------------------------------------------------------------------------------------------
+void MultiFuncShield::write(byte segmentBinary[4]){
+	int i;
+	for(i = 0; i < sizeof(segmentBinary)/sizeof(byte); i++){
+		displayMemory[i] = segmentBinary[i];
+	}
+}
+
+// ----------------------------------------------------------------------------------------------------
 void MultiFuncShield::write(const char *text, byte rightJustify)
 {
   byte displayBuf[] = {0,0,0,0}, *pBuf = displayBuf;
@@ -568,6 +576,51 @@ void MultiFuncShield::write(const char *text, byte rightJustify)
       displayMemory[i] = displayBuf[i];
     }
   }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void MultiFuncShield::writeRolling(char * aString, int msDelay) {
+    int i, i2;
+    char aBuffer[4];
+
+    for (i = 0; i < strlen(aBuffer); i++) {
+      aBuffer[i] = ' ';
+    }
+    for (i = 0; i < strlen(aString); i++) {
+      for (i2 = 0; i2 < strlen(aBuffer); i2++) {
+        aBuffer[i2] = aBuffer[i2 + 1];
+      }
+      aBuffer[3] = aString[i];
+      this->write(aBuffer);
+      this->wait(msDelay);
+    }
+    for (i = 0; i < strlen(aBuffer); i++) {
+      for (i2 = 0; i2 < strlen(aBuffer); i2++) {
+        aBuffer[i2] = aBuffer[i2 + 1];
+      }
+      aBuffer[3] = ' ';
+      this->write(aBuffer);
+      this->wait(msDelay);
+    }
+  }
+
+// ----------------------------------------------------------------------------------------------------
+void MultiFuncShield::writeBlinking(char text[4], bool blinkmp[4], int blankAppearingTime, int textAppearingTime) {
+  char wipedText[4];
+
+  int i;
+  for (i = 0; i < 4; i++) {
+    if (blinkmp[i]) {
+      wipedText[i] = ' ';
+    } else {
+      wipedText[i] = text[i];
+    }
+  }
+
+  this->write(text);
+  this->wait(textAppearingTime);
+  this->write(wipedText);
+  this->wait(blankAppearingTime);
 }
 
 
@@ -987,6 +1040,72 @@ byte AsciiToSegmentValue (byte ascii)
         break;
       case ' ':
         segmentValue = 255;
+        break;    
+      case '/':
+        segmentValue = 0xAD;
+        break;
+      case '\\':
+        segmentValue = 0x9B;
+        break;
+      case '|':
+        segmentValue = 0xCF;
+        break;
+      case '+':
+        segmentValue = 0x8F;
+        break;
+      case '=':
+        segmentValue = 0xB7;
+        break;
+      case '`':
+        segmentValue = 0xFE;
+        break;
+      case '\'':
+        segmentValue = 0xFD;
+        break;
+      case '"':
+        segmentValue = 0xDD;
+        break;
+      case '>':
+        segmentValue = 0xFC;
+        break;
+      case '<':
+        segmentValue = 0xDE;
+        break;
+      case '[':
+        segmentValue = 0xC6;
+        break;
+      case ']':
+        segmentValue = 0xF0;
+        break;
+      case '(':
+        segmentValue = 0xC6;
+        break;
+      case ')':
+        segmentValue = 0xF0;
+        break;
+      case '{':
+        segmentValue = 0xC6;
+        break;
+      case '}':
+        segmentValue = 0xF0;
+        break;
+      case '~':
+        segmentValue = 0xFE;
+        break;
+      case '^':
+        segmentValue = 0xDC;
+        break;
+      case ',':
+        segmentValue = 0xF3;
+        break;
+      case ';':
+        segmentValue = 0x4F;
+        break;
+      case ':':
+        segmentValue = 0x6F;
+        break;
+      case '?':
+        segmentValue = 0xAC;
         break;
     }
   }

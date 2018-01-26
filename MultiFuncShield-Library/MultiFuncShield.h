@@ -92,6 +92,9 @@ class MultiFuncShield
     void write(const char *textstring, byte rightJustify =0);
     void write(int integer);
     void write(float number, byte decimalPlaces = 1);
+    void write(byte segmentBinary[4]);
+    void writeRolling(char * aString, int msDelay);
+    void writeBlink(char text[4], bool blinkmp[4], int blankAppearingTime, int textAppearingTime);
     
     // Manually refreshes the Led digit display.
     // Not to be used whilst interrupt based features are available.
